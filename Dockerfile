@@ -3,7 +3,7 @@ FROM golang:1.14.3
 COPY . /app
 WORKDIR /app
 
-ENV DB_HOST=192.168.100.59
+ENV DB_HOST=host.docker.internal
 ENV DB_NAME=mydb
 ENV DB_USER=root
 ENV DB_PASS=A123b456c
