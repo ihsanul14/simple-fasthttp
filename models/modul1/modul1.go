@@ -1,11 +1,11 @@
 package modul1
 
 type Request struct {
-	Id         int    `json:"id"`
-	Nama       string `json:"nama"`
-	Nomor      int    `json:"nomor"`
-	Created_at string `json:"created_at"`
-	Updated_at string `json:"updated_at"`
+	Id         int    `json:"id" xml:"id" form:"id"`
+	Nama       string `json:"nama" xml:"nama" form:"nama"`
+	Nomor      int    `json:"nomor" xml:"nomor" form:"nomor"`
+	Created_at string `json:"created_at" xml:"created_at" form:"created_at"`
+	Updated_at string `json:"updated_at" xml:"updated_at" form:"upadated_at"`
 }
 
 type Response struct {

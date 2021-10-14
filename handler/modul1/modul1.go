@@ -1,6 +1,7 @@
 package modul1
 
 import (
+	"fmt"
 	ctrl "simple-fasthttp/controller/modul1"
 	mdl "simple-fasthttp/models/modul1"
 
@@ -16,28 +17,26 @@ func Get(c *fiber.Ctx) error {
 }
 
 func DataHandler(c *fiber.Ctx) error {
-	var param mdl.Request
+	param := new(mdl.Request)
 	var err error
 	if err := c.BodyParser(param); err != nil {
-		if param.Id >= 0 {
-			result, err := ctrl.GetData(param)
-			if err == nil {
-				result.Code = 200
-				result.Message = "success retrieve data"
-				c.JSON(result)
-			} else {
-				result.Code = 500
-				result.Message = "internal server error"
-				c.JSON(result)
-			}
+		return err
+	}
+	if param.Id >= 0 {
+		result, err := ctrl.GetData(param)
+		if err == nil {
+			result.Code = 200
+			result.Message = "success retrieve data"
+			c.JSON(result)
+		} else {
+			result.Code = 500
+			result.Message = "internal server error"
+			c.JSON(result)
 		}
-		// return err
+	} else {
+		c.JSON(mdl.ResponseAll{Code: 400, Message: fmt.Sprintf("kode %s must be a string", modul)})
 	}
 	return err
-	// else {
-	// 	c.JSON(map[string]{"code": 400, "message": fmt.Sprintf("kode %s must be a string", modul)})
-	// }
-	// return err
 }
 
 func CreateHandler(c *fiber.Ctx) error {

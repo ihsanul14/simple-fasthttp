@@ -13,7 +13,7 @@ const updateQuery = "UPDATE %s SET nama = ?, nomor = ?, updated_at = NOW() WHERE
 const deleteQuery = "DELETE FROM %s WHERE id = ?"
 const table = "testing"
 
-func GetData(param mdl.Request) (mdl.ResponseAll, error) {
+func GetData(param *mdl.Request) (mdl.ResponseAll, error) {
 	var (
 		result []mdl.Response
 		res    mdl.ResponseAll
