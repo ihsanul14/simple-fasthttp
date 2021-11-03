@@ -1,6 +1,5 @@
 def dockerName = "simple-fasthttp"
 def container = "simple-fasthttp"
-def port = "30001"
 
 pipeline {
     agent any
@@ -15,7 +14,7 @@ pipeline {
         }
         stage('Deploy to Production') {
             steps {
-                sh "docker-compose --env-file /.env up"
+                sh "docker-compose up"
             }
         }
     }
