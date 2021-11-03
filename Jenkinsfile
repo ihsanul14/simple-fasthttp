@@ -15,7 +15,7 @@ pipeline {
         }
         stage('Deploy to Production') {
             steps {
-                sh "cat ${gopath}/src/${dockerName}/.env"
+                sh "export $(grep -v '^#' ${gopath}/src/${dockerName}/.env | xargs)"
                 sh "docker container kill ${dockerName}"
                 sh "docker container rm ${dockerName}"
                 sh "docker-compose --env-file ${gopath}/src/${dockerName}/.env up -d"
