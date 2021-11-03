@@ -14,7 +14,7 @@ pipeline {
         }
         stage('Deploy to Production') {
             steps {
-                sh "docker-compose --env-file ${GOPATH}/src/${dockerName}/.env up"
+                sh "docker-compose --env-file ${GOPATH}/src/${dockerName}/.env up -d --force-recreate"
             }
         }
     }
