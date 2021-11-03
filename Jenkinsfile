@@ -15,7 +15,7 @@ pipeline {
         }
         stage('Deploy to Production') {
             steps {
-                sh "export $(grep -v '^#' ${gopath}/src/${dockerName}/.env | xargs)"
+                sh "export $(grep -v '^#' D:/Golang/src/simple-fasthttp/.env | xargs)"
                 sh "docker container kill ${dockerName}"
                 sh "docker container rm ${dockerName}"
                 sh "docker-compose --env-file ${gopath}/src/${dockerName}/.env up -d"
