@@ -5,5 +5,5 @@ services:
     ports:
       - "${PORT}:${PORT}"
     environment:
-      DB_HOST: host.docker.internal
+      DB_HOST: "192.168.100.59"
     container_name: simple-fasthttp
