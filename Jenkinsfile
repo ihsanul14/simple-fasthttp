@@ -14,7 +14,7 @@ pipeline {
         }
         stage('Deploy to Production') {
             steps {
-                sh "cat $GOPATH/src/${dockerName}/.env"
+                sh "cat %GOPATH%/src/${dockerName}/.env"
                 sh "docker container kill ${dockerName}"
                 sh "docker container rm ${dockerName}"
                 sh "docker-compose --env-file D:/Golang/src/${dockerName}/.env up -d"
