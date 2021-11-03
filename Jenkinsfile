@@ -18,7 +18,7 @@ pipeline {
                 sh "cat ${gopath}/src/${dockerName}/.env"
                 sh "docker container kill ${dockerName}"
                 sh "docker container rm ${dockerName}"
-                sh "docker-compose --env-file D:/Golang/src/${dockerName}/.env up -d"
+                sh "docker-compose --env-file ${gopath}/src/${dockerName}/.env up -d"
             }
         }
     }
