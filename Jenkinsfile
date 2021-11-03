@@ -14,7 +14,9 @@ pipeline {
         }
         stage('Deploy to Production') {
             steps {
-                sh "docker-compose --env-file ${GOPATH}/src/${dockerName}/.env up -d --force-recreate"
+                sh "docker container kill ${dockerName}"
+                sh "docker container rm ${dockerName}"
+                sh "docker-compose --env-file ${GOPATH}/src/${dockerName}/.env up -d"
             }
         }
     }
