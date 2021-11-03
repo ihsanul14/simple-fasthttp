@@ -1,0 +1,10 @@
+version: "3.4"
+services:
+  web:
+    build: .
+    ports:
+      - "${PORT}:${PORT}"
+    volumes:
+      - .:/.env
+    environment:
+      DB_HOST: host.docker.internal
