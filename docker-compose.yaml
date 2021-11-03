@@ -8,3 +8,4 @@ services:
       - .:/.env
     environment:
       DB_HOST: host.docker.internal
+    container_name: simple-fasthttp
