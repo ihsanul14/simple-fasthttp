@@ -5,7 +5,7 @@ services:
     ports:
       - "${PORT}:${PORT}"
     volumes:
-      - .:/.env
+      - D:/Golang/src/simple-fasthttp/env/.env
     environment:
       DB_HOST: host.docker.internal
     # DB_PORT: 3306

@@ -1,6 +1,5 @@
 def dockerName = "simple-fasthttp"
 def container = "simple-fasthttp"
-def gopath = "D:/Golang"
 
 pipeline {
     agent any
@@ -15,10 +14,9 @@ pipeline {
         }
         stage('Deploy to Production') {
             steps {
-                sh "export $(grep -v '^#' D:/Golang/src/simple-fasthttp/.env | xargs)"
                 sh "docker container kill ${dockerName}"
                 sh "docker container rm ${dockerName}"
-                sh "docker-compose --env-file ${gopath}/src/${dockerName}/.env up -d"
+                sh "docker-compose --env-file .env up -d"
             }
         }
     }
