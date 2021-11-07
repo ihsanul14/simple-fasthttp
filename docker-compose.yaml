@@ -3,9 +3,10 @@ services:
   web:
     build: .
     ports:
-      - "${PORT}:${PORT}"
+      # - "${PORT}:${PORT}"
+      - "30001:30001"
     volumes:
-      - D:/Golang/src/simple-fasthttp/env/.env
+      - /mnt/c/Users/hrd/sample_secret/.env: ./env
     environment:
       DB_HOST: host.docker.internal
     # DB_PORT: 3306
