@@ -16,7 +16,7 @@ pipeline {
             steps {
                 sh "docker container kill ${dockerName}"
                 sh "docker container rm ${dockerName}"
-                sh "docker-compose --env-file C:/Users/hrd/sample_secret/.env up -d"
+                sh "docker-compose --env-file .env up -d"
             }
         }
     }

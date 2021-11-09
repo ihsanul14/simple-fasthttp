@@ -5,8 +5,8 @@ services:
     ports:
       # - "${PORT}:${PORT}"
       - "30001:30001"
-    # volumes:
-    #   - /mnt/c/Users/hrd/sample_secret/.env: ./env
+    volumes:
+      - /mnt/c/Users/hrd/sample_secret/.env: ./env
     environment:
       DB_HOST: host.docker.internal
     # DB_PORT: 3306
