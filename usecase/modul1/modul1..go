@@ -20,11 +20,11 @@ func NewUsecase(u repo.Repository) usecase.Usecase {
 		Repo: u,
 	}
 }
-func (u UsecaseModul) ShowData(ctx *fasthttp.RequestCtx, param *mdl.Request) (*mdl.ResponseAll, error) {
+func (u UsecaseModul) ReadData(ctx *fasthttp.RequestCtx, param *mdl.Request) (mdl.ResponseAll, error) {
 	res, err := u.Repo.GetData(ctx, param)
 	if err != nil {
 		log.Println(err.Error())
-		return nil, err
+		return res, err
 	}
 	return res, err
 }

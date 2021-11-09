@@ -3,19 +3,19 @@ package modul1
 import (
 	"fmt"
 	mdl "simple-fasthttp/models/modul1"
-	usecase "simple-fasthttp/usecase/modul1"
+	usecase "simple-fasthttp/usecase"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 type Handler struct {
-	Usecase usecase.UsecaseModul
+	Usecase usecase.Usecase
 }
 
 const modul = "modul1"
 
-func Router(router *fiber.App) {
-	var u Handler
+func Router(router *fiber.App, uc usecase.Usecase) {
+	u := Handler{Usecase: uc}
 	// router.Get("/", handler.Get)
 	router.Post("api/data", u.GetDataHandler)
 	// router.Post("api/data/add", handler.CreateHandler)
@@ -32,7 +32,7 @@ func (u Handler) GetDataHandler(c *fiber.Ctx) error {
 		return err
 	}
 	if param.Id >= 0 {
-		result, err := u.Usecase.ShowData(ctx, param)
+		result, err := u.Usecase.ReadData(ctx, param)
 		if err == nil {
 			result.Code = 200
 			result.Message = "success retrieve data"

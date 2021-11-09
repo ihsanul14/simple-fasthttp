@@ -1,11 +1,11 @@
 package repository
 
 import (
-	"context"
 	"fmt"
 	models "simple-fasthttp/models/modul1"
 	"simple-fasthttp/repository"
 
+	"github.com/valyala/fasthttp"
 	"gorm.io/gorm"
 )
 
@@ -19,11 +19,9 @@ const deleteQuery = "DELETE FROM %s WHERE id = ?"
 const table = "testing"
 
 func NewRepository(dbconn *gorm.DB) repository.Repository {
-	return &Repo{
-		dbconn,
-	}
+	return &Repo{dbconn}
 }
-func (r Repo) GetDataQuery(ctx context.Context, param *models.Request) (models.ResponseAll, error) {
+func (r Repo) GetData(ctx *fasthttp.RequestCtx, param *models.Request) (models.ResponseAll, error) {
 	var (
 		result []models.Response
 		res    models.ResponseAll
@@ -42,7 +40,7 @@ func (r Repo) GetDataQuery(ctx context.Context, param *models.Request) (models.R
 	return res, err
 }
 
-func (r Repo) CreateDataQuery(ctx context.Context, param models.Request) (err error) {
+func (r Repo) CreateData(ctx *fasthttp.RequestCtx, param *models.Request) (err error) {
 	err = r.Dbconn.Exec(fmt.Sprintf(createQuery, table), param.Nama, param.Nomor).Error
 	if err != nil {
 		fmt.Println(err.Error())
@@ -51,7 +49,7 @@ func (r Repo) CreateDataQuery(ctx context.Context, param models.Request) (err er
 	return err
 }
 
-func (r Repo) UpdateDataQuery(ctx context.Context, param models.Request) (err error) {
+func (r Repo) UpdateData(ctx *fasthttp.RequestCtx, param *models.Request) (err error) {
 	query := r.Dbconn.Exec(fmt.Sprintf(updateQuery, table), param.Nama, param.Nomor, param.Id)
 	err = query.Error
 	if err != nil {
@@ -61,7 +59,7 @@ func (r Repo) UpdateDataQuery(ctx context.Context, param models.Request) (err er
 	return err
 }
 
-func (r Repo) DeleteDataQuery(ctx context.Context, param models.Request) (err error) {
+func (r Repo) DeleteData(ctx *fasthttp.RequestCtx, param *models.Request) (err error) {
 	query := r.Dbconn.Exec(fmt.Sprintf(deleteQuery, table), param.Id)
 	err = query.Error
 	if err != nil {

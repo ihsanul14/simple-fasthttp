@@ -19,6 +19,6 @@ func InitRouter(usecase usecase.Usecase) *fiber.App {
 		AllowCredentials: true,
 	}))
 
-	mod1_router.Router(router)
+	mod1_router.Router(router, usecase)
 	return router
 }
