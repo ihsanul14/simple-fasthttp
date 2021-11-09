@@ -13,5 +13,4 @@ services:
     # DB_PASS: A123b456c
     # DB_NAME: mydb
     # DB_USER: root
-    # PORT: 30001
     container_name: simple-fasthttp
