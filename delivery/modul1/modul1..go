@@ -9,7 +9,7 @@ import (
 )
 
 type Handler struct {
-	Usecase usecase.Usecase
+	Usecase usecase.UsecaseModul
 }
 
 const modul = "modul1"

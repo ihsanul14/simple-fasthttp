@@ -16,9 +16,9 @@ func main() {
 	if err != nil {
 		return
 	}
-	router := delivery.InitRouter()
 	repository := repo.NewRepository(mysqlConn)
 	usecase := use.NewUsecase(repository)
+	router := delivery.InitRouter(usecase)
 
 	router.Listen(":" + os.Getenv("PORT"))
 }

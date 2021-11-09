@@ -19,7 +19,9 @@ const deleteQuery = "DELETE FROM %s WHERE id = ?"
 const table = "testing"
 
 func NewRepository(dbconn *gorm.DB) repository.Repository {
-	return &Repo{dbconn}
+	return &Repo{
+		dbconn,
+	}
 }
 func (r Repo) GetDataQuery(ctx context.Context, param *models.Request) (models.ResponseAll, error) {
 	var (
