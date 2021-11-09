@@ -1,7 +1,7 @@
-package router
+package delivery
 
 import (
-	mod1_router "simple-fasthttp/router/modul1"
+	mod1_router "simple-fasthttp/delivery/modul1"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"

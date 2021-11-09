@@ -37,10 +37,6 @@ func ConnectMySQL() (*gorm.DB, error) {
 	} else {
 		fmt.Println(database, "is Connected")
 	}
-
+	Db = Db.Debug()
 	return Db, err
-}
-
-func GetDB() *gorm.DB {
-	return Db
 }
