@@ -41,3 +41,15 @@ func ConnectMySQL() (*gorm.DB, error) {
 	Db = Db.Debug()
 	return Db, err
 }
+
+type TestDBError struct {
+	TestDB
+	Error error
+}
+
+type TestDB interface {
+	// ConnectMySQL(*gorm.DB, error)
+	Table(name string) TestDB
+	Where(query interface{}, args ...interface{}) TestDB
+	Scan(dest interface{}) *TestDBError
+}
