@@ -1,14 +1,17 @@
-package delivery
+package router
 
 import (
-	mod1_router "simple-fasthttp/delivery/modul1"
+	modul1_usecase "simple-fasthttp/app/modul1"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
-//InitRouter is used for initiate router
-func InitRouter() *fiber.App {
+type Router struct {
+	Modul1Handler modul1_usecase.IHandler
+}
+
+func (r *Router) NewRouter() *fiber.App {
 	router := fiber.New()
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     "*",
@@ -18,6 +21,6 @@ func InitRouter() *fiber.App {
 		AllowCredentials: true,
 	}))
 
-	mod1_router.Router(router)
+	r.Modul1Handler.Routes(router)
 	return router
 }

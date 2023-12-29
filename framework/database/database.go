@@ -26,17 +26,10 @@ func ConnectMySQL() (*gorm.DB, error) {
 		user, password, host, port, dbname)
 
 	Db, err = gorm.Open(mysql.Open(msqlInfo), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
-
 	if err != nil {
-		fmt.Println(err.Error())
 		return nil, err
 	}
 
-	if err != nil {
-		fmt.Println("Connection Database Error ", err.Error())
-	} else {
-		fmt.Println(database, "is Connected")
-	}
 	Db = Db.Debug()
 	return Db, err
 }

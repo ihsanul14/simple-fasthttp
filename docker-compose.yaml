@@ -3,14 +3,9 @@ services:
   web:
     build: .
     ports:
-      # - "${PORT}:${PORT}"
       - "30001:30001"
     volumes:
       - /mnt/c/Users/hrd/sample_secret/.env: ./env
     environment:
       DB_HOST: host.docker.internal
-    # DB_PORT: 3306
-    # DB_PASS: A123b456c
-    # DB_NAME: mydb
-    # DB_USER: root
     container_name: simple-fasthttp
