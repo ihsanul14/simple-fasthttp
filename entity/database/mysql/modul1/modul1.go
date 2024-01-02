@@ -4,6 +4,7 @@ import (
 	"fmt"
 	repository "simple-fasthttp/entity/database/mysql"
 	models "simple-fasthttp/entity/model"
+	fe "simple-fasthttp/framework/error"
 
 	"github.com/valyala/fasthttp"
 	"gorm.io/gorm"
@@ -21,44 +22,42 @@ const table = "testing"
 func NewRepository(dbconn *gorm.DB) repository.Repository {
 	return &Repo{dbconn}
 }
-func (r Repo) GetData(ctx *fasthttp.RequestCtx, param *models.Request) ([]*models.Response, error) {
-	var (
-		res []*models.Response
-		err error
-	)
+func (r Repo) GetData(ctx *fasthttp.RequestCtx, param *models.Request) ([]*models.Response, *fe.Error) {
+	var res []*models.Response
+
 	query := r.Dbconn.Table(table)
 	if param.Id != 0 {
 		query = query.Where("id = ?", param.Id)
 	}
-	err = query.Scan(&res).Error
+	err := query.Scan(&res).Error
 	if err != nil {
-		return nil, err
+		return nil, fe.NewError(500, err)
 	}
 	return res, nil
 }
 
-func (r Repo) CreateData(ctx *fasthttp.RequestCtx, param *models.Request) (err error) {
-	err = r.Dbconn.Exec(fmt.Sprintf(createQuery, table), param.Nama, param.Nomor).Error
+func (r Repo) CreateData(ctx *fasthttp.RequestCtx, param *models.Request) *fe.Error {
+	err := r.Dbconn.Exec(fmt.Sprintf(createQuery, table), param.Nama, param.Nomor).Error
 	if err != nil {
-		return err
+		return fe.NewError(500, err)
 	}
-	return err
+	return nil
 }
 
-func (r Repo) UpdateData(ctx *fasthttp.RequestCtx, param *models.Request) (err error) {
+func (r Repo) UpdateData(ctx *fasthttp.RequestCtx, param *models.Request) *fe.Error {
 	query := r.Dbconn.Exec(fmt.Sprintf(updateQuery, table), param.Nama, param.Nomor, param.Id)
-	err = query.Error
+	err := query.Error
 	if err != nil {
-		return err
+		return fe.NewError(500, err)
 	}
-	return err
+	return nil
 }
 
-func (r Repo) DeleteData(ctx *fasthttp.RequestCtx, param *models.Request) (err error) {
+func (r Repo) DeleteData(ctx *fasthttp.RequestCtx, param *models.Request) *fe.Error {
 	query := r.Dbconn.Exec(fmt.Sprintf(deleteQuery, table), param.Id)
-	err = query.Error
+	err := query.Error
 	if err != nil {
-		return err
+		return fe.NewError(500, err)
 	}
-	return err
+	return nil
 }

@@ -3,6 +3,7 @@ package modul1
 import (
 	repo "simple-fasthttp/entity/database/mysql"
 	model "simple-fasthttp/entity/model"
+	fe "simple-fasthttp/framework/error"
 	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -48,19 +49,23 @@ type Usecase struct {
 }
 
 type IUsecase interface {
-	GetData(*fasthttp.RequestCtx, *Request) (*ResponseAll, error)
-	CreateData(*fasthttp.RequestCtx, *CreateRequest) error
-	UpdateData(*fasthttp.RequestCtx, *UpdateRequest) error
-	DeleteData(*fasthttp.RequestCtx, *DeleteRequest) error
+	GetData(*fasthttp.RequestCtx, *Request) (*ResponseAll, *fe.Error)
+	CreateData(*fasthttp.RequestCtx, *CreateRequest) *fe.Error
+	UpdateData(*fasthttp.RequestCtx, *UpdateRequest) *fe.Error
+	DeleteData(*fasthttp.RequestCtx, *DeleteRequest) *fe.Error
 }
 
 func NewUsecase(u repo.Repository) IUsecase {
 	return &Usecase{Repo: u}
 }
-func (u Usecase) GetData(ctx *fasthttp.RequestCtx, param *Request) (*ResponseAll, error) {
-	id, err := strconv.Atoi(param.Id)
-	if err != nil {
-		return nil, err
+func (u Usecase) GetData(ctx *fasthttp.RequestCtx, param *Request) (*ResponseAll, *fe.Error) {
+	var id int
+	if param.Id != "" {
+		i, errv := strconv.Atoi(param.Id)
+		if errv != nil {
+			return nil, fe.NewError(400, errv)
+		}
+		id = i
 	}
 
 	data := &model.Request{
@@ -78,7 +83,7 @@ func (u Usecase) GetData(ctx *fasthttp.RequestCtx, param *Request) (*ResponseAll
 	}, nil
 }
 
-func (u *Usecase) CreateData(ctx *fasthttp.RequestCtx, param *CreateRequest) error {
+func (u *Usecase) CreateData(ctx *fasthttp.RequestCtx, param *CreateRequest) *fe.Error {
 	req := &model.Request{
 		Id:    param.Id,
 		Nama:  param.Nama,
@@ -91,7 +96,7 @@ func (u *Usecase) CreateData(ctx *fasthttp.RequestCtx, param *CreateRequest) err
 	return nil
 }
 
-func (u *Usecase) UpdateData(ctx *fasthttp.RequestCtx, param *UpdateRequest) error {
+func (u *Usecase) UpdateData(ctx *fasthttp.RequestCtx, param *UpdateRequest) *fe.Error {
 	req := &model.Request{
 		Id:    param.Id,
 		Nama:  param.Nama,
@@ -104,7 +109,7 @@ func (u *Usecase) UpdateData(ctx *fasthttp.RequestCtx, param *UpdateRequest) err
 	return nil
 }
 
-func (u *Usecase) DeleteData(ctx *fasthttp.RequestCtx, param *DeleteRequest) error {
+func (u *Usecase) DeleteData(ctx *fasthttp.RequestCtx, param *DeleteRequest) *fe.Error {
 	req := &model.Request{
 		Id: param.Id,
 	}

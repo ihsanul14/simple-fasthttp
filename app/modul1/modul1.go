@@ -1,6 +1,8 @@
 package modul1
 
 import (
+	fe "simple-fasthttp/framework/error"
+	"simple-fasthttp/framework/logger"
 	"simple-fasthttp/framework/validator"
 	usecase "simple-fasthttp/usecase/modul1"
 
@@ -12,6 +14,7 @@ const modul = "modul1"
 type Handler struct {
 	Usecase   usecase.IUsecase
 	Validator validator.IValidator
+	Logger    logger.ILogger
 }
 
 type IHandler interface {
@@ -20,14 +23,16 @@ type IHandler interface {
 	CreateHandler(*fiber.Ctx) error
 	UpdateHandler(*fiber.Ctx) error
 	DeleteHandler(*fiber.Ctx) error
+	ErrorHandler(*fiber.Ctx, *fe.Error) error
 }
 
-func NewApplication(u usecase.IUsecase, v validator.IValidator) IHandler {
+func NewApplication(u usecase.IUsecase, v validator.IValidator, logger logger.ILogger) IHandler {
 	v.AddRules(getRule, usecase.Request{})
 	v.AddRules(createRule, usecase.CreateRequest{})
 	v.AddRules(updateRule, usecase.UpdateRequest{})
 	v.AddRules(deleteRule, usecase.DeleteRequest{})
-	return &Handler{Usecase: u, Validator: v}
+
+	return &Handler{Usecase: u, Validator: v, Logger: logger}
 }
 
 func (u *Handler) Routes(router *fiber.App) {
@@ -52,9 +57,7 @@ func (u *Handler) GetDataHandler(c *fiber.Ctx) error {
 			result.Message = "success retrieve data"
 			return c.Status(200).JSON(result)
 		} else {
-			result.Code = 500
-			result.Message = err.Error()
-			return c.Status(500).JSON(result)
+			return u.ErrorHandler(c, err)
 		}
 	} else {
 		return c.Status(400).JSON(usecase.ResponseAll{Code: 400, Message: err.Error()})
@@ -62,22 +65,21 @@ func (u *Handler) GetDataHandler(c *fiber.Ctx) error {
 }
 
 func (u *Handler) CreateHandler(c *fiber.Ctx) error {
-	param := new(usecase.Request)
+	param := new(usecase.CreateRequest)
 	ctx := c.Context()
 	if err := c.BodyParser(param); err != nil {
 		return c.Status(400).JSON(usecase.ResponseAll{Code: 400, Message: err.Error()})
 	}
 	err := u.Validator.Check(param)
 	if err == nil {
-		result, err := u.Usecase.GetData(ctx, param)
+		err := u.Usecase.CreateData(ctx, param)
 		if err == nil {
-			result.Code = 200
-			result.Message = "success retrieve data"
-			return c.Status(200).JSON(result)
+			return c.Status(200).JSON(usecase.ResponseAll{
+				Code:    200,
+				Message: "success create data",
+			})
 		} else {
-			result.Code = 500
-			result.Message = err.Error()
-			return c.Status(500).JSON(result)
+			return u.ErrorHandler(c, err)
 		}
 	} else {
 		return c.Status(400).JSON(usecase.ResponseAll{Code: 400, Message: err.Error()})
@@ -85,22 +87,23 @@ func (u *Handler) CreateHandler(c *fiber.Ctx) error {
 }
 
 func (u *Handler) UpdateHandler(c *fiber.Ctx) error {
-	param := new(usecase.Request)
+	param := new(usecase.UpdateRequest)
 	ctx := c.Context()
 	if err := c.BodyParser(param); err != nil {
 		return c.Status(400).JSON(usecase.ResponseAll{Code: 400, Message: err.Error()})
 	}
 	err := u.Validator.Check(param)
 	if err == nil {
-		result, err := u.Usecase.GetData(ctx, param)
+		err := u.Usecase.UpdateData(ctx, param)
 		if err == nil {
-			result.Code = 200
-			result.Message = "success retrieve data"
-			return c.Status(200).JSON(result)
+			return c.Status(200).JSON(
+				usecase.ResponseAll{
+					Code:    200,
+					Message: "success update data",
+				},
+			)
 		} else {
-			result.Code = 500
-			result.Message = err.Error()
-			return c.Status(500).JSON(result)
+			return u.ErrorHandler(c, err)
 		}
 	} else {
 		return c.Status(400).JSON(usecase.ResponseAll{Code: 400, Message: err.Error()})
@@ -108,24 +111,34 @@ func (u *Handler) UpdateHandler(c *fiber.Ctx) error {
 }
 
 func (u *Handler) DeleteHandler(c *fiber.Ctx) error {
-	param := new(usecase.Request)
+	param := new(usecase.DeleteRequest)
 	ctx := c.Context()
 	if err := c.BodyParser(param); err != nil {
 		return c.Status(400).JSON(usecase.ResponseAll{Code: 400, Message: err.Error()})
 	}
 	err := u.Validator.Check(param)
 	if err == nil {
-		result, err := u.Usecase.GetData(ctx, param)
+		err := u.Usecase.DeleteData(ctx, param)
 		if err == nil {
-			result.Code = 200
-			result.Message = "success retrieve data"
-			return c.Status(200).JSON(result)
+			return c.Status(200).JSON(usecase.ResponseAll{
+				Code:    200,
+				Message: "success create data",
+			})
 		} else {
-			result.Code = 500
-			result.Message = err.Error()
-			return c.Status(500).JSON(result)
+			return u.ErrorHandler(c, err)
 		}
 	} else {
 		return c.Status(400).JSON(usecase.ResponseAll{Code: 400, Message: err.Error()})
 	}
+}
+
+func (u *Handler) ErrorHandler(c *fiber.Ctx, err *fe.Error) error {
+	u.Logger.Error(err.Message)
+
+	var result = usecase.ResponseAll{
+		Code:    err.Code,
+		Message: err.Message,
+	}
+
+	return c.Status(err.Code).JSON(result)
 }

@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"log"
 	"os"
 	modul1Handler "simple-fasthttp/app/modul1"
 	repo "simple-fasthttp/entity/database/mysql/modul1"
 	"simple-fasthttp/framework/database"
+	fl "simple-fasthttp/framework/logger"
 	fr "simple-fasthttp/framework/router"
 	fv "simple-fasthttp/framework/validator"
 	u "simple-fasthttp/usecase/modul1"
@@ -19,18 +19,19 @@ type Cmd struct {
 }
 
 func Run() {
+	logger := fl.NewLogger()
 	if err := gotenv.Load(); err != nil {
-		log.Fatal(err)
+		logger.Fatal(err.Error())
 	}
 	mysqlConn, err := database.ConnectMySQL()
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err.Error())
 	}
-
 	validator := fv.NewValidator()
+
 	repository := repo.NewRepository(mysqlConn)
 	usecase := u.NewUsecase(repository)
-	handler := modul1Handler.NewApplication(usecase, validator)
+	handler := modul1Handler.NewApplication(usecase, validator, logger)
 	router := fr.Router{
 		Modul1Handler: handler,
 	}
