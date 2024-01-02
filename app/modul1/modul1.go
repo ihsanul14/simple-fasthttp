@@ -1,8 +1,7 @@
 package modul1
 
 import (
-	"fmt"
-
+	"simple-fasthttp/framework/validator"
 	usecase "simple-fasthttp/usecase/modul1"
 
 	"github.com/gofiber/fiber/v2"
@@ -11,7 +10,8 @@ import (
 const modul = "modul1"
 
 type Handler struct {
-	Usecase usecase.IUsecase
+	Usecase   usecase.IUsecase
+	Validator validator.IValidator
 }
 
 type IHandler interface {
@@ -22,113 +22,110 @@ type IHandler interface {
 	DeleteHandler(*fiber.Ctx) error
 }
 
-func NewApplication(u usecase.IUsecase) IHandler {
-	return &Handler{Usecase: u}
+func NewApplication(u usecase.IUsecase, v validator.IValidator) IHandler {
+	v.AddRules(getRule, usecase.Request{})
+	v.AddRules(createRule, usecase.CreateRequest{})
+	v.AddRules(updateRule, usecase.UpdateRequest{})
+	v.AddRules(deleteRule, usecase.DeleteRequest{})
+	return &Handler{Usecase: u, Validator: v}
 }
 
 func (u *Handler) Routes(router *fiber.App) {
-	router.Post("api/data", u.GetDataHandler)
+	router.Get("api/data", u.GetDataHandler)
 	router.Post("api/data/add", u.CreateHandler)
 	router.Put("api/data/update", u.UpdateHandler)
 	router.Delete("api/data/delete", u.DeleteHandler)
 }
 
 func (u *Handler) GetDataHandler(c *fiber.Ctx) error {
-	param := new(usecase.Request)
-	var err error
-
 	ctx := c.Context()
-	if err := c.BodyParser(param); err != nil {
-		return err
+
+	param := &usecase.Request{
+		Id: c.Query("id"),
 	}
-	if param.Id >= 0 {
+
+	err := u.Validator.Check(param)
+	if err == nil {
 		result, err := u.Usecase.GetData(ctx, param)
 		if err == nil {
 			result.Code = 200
 			result.Message = "success retrieve data"
-			c.JSON(result)
+			return c.Status(200).JSON(result)
 		} else {
 			result.Code = 500
 			result.Message = err.Error()
-			c.JSON(result)
+			return c.Status(500).JSON(result)
 		}
 	} else {
-		c.JSON(usecase.ResponseAll{Code: 400, Message: fmt.Sprintf("kode %s must be a string", modul)})
+		return c.Status(400).JSON(usecase.ResponseAll{Code: 400, Message: err.Error()})
 	}
-	return err
 }
 
 func (u *Handler) CreateHandler(c *fiber.Ctx) error {
 	param := new(usecase.Request)
-	var err error
-
 	ctx := c.Context()
 	if err := c.BodyParser(param); err != nil {
-		return err
+		return c.Status(400).JSON(usecase.ResponseAll{Code: 400, Message: err.Error()})
 	}
-	if param.Id >= 0 {
+	err := u.Validator.Check(param)
+	if err == nil {
 		result, err := u.Usecase.GetData(ctx, param)
 		if err == nil {
 			result.Code = 200
 			result.Message = "success retrieve data"
-			c.JSON(result)
+			return c.Status(200).JSON(result)
 		} else {
 			result.Code = 500
 			result.Message = err.Error()
-			c.JSON(result)
+			return c.Status(500).JSON(result)
 		}
 	} else {
-		c.JSON(usecase.ResponseAll{Code: 400, Message: fmt.Sprintf("kode %s must be a string", modul)})
+		return c.Status(400).JSON(usecase.ResponseAll{Code: 400, Message: err.Error()})
 	}
-	return err
 }
 
 func (u *Handler) UpdateHandler(c *fiber.Ctx) error {
 	param := new(usecase.Request)
-	var err error
-
 	ctx := c.Context()
 	if err := c.BodyParser(param); err != nil {
-		return err
+		return c.Status(400).JSON(usecase.ResponseAll{Code: 400, Message: err.Error()})
 	}
-	if param.Id >= 0 {
+	err := u.Validator.Check(param)
+	if err == nil {
 		result, err := u.Usecase.GetData(ctx, param)
 		if err == nil {
 			result.Code = 200
 			result.Message = "success retrieve data"
-			c.JSON(result)
+			return c.Status(200).JSON(result)
 		} else {
 			result.Code = 500
 			result.Message = err.Error()
-			c.JSON(result)
+			return c.Status(500).JSON(result)
 		}
 	} else {
-		c.JSON(usecase.ResponseAll{Code: 400, Message: fmt.Sprintf("kode %s must be a string", modul)})
+		return c.Status(400).JSON(usecase.ResponseAll{Code: 400, Message: err.Error()})
 	}
-	return err
 }
 
 func (u *Handler) DeleteHandler(c *fiber.Ctx) error {
 	param := new(usecase.Request)
-	var err error
-
 	ctx := c.Context()
 	if err := c.BodyParser(param); err != nil {
-		return err
+		return c.Status(400).JSON(usecase.ResponseAll{Code: 400, Message: err.Error()})
 	}
-	if param.Id >= 0 {
+	err := u.Validator.Check(param)
+	if err == nil {
 		result, err := u.Usecase.GetData(ctx, param)
 		if err == nil {
 			result.Code = 200
 			result.Message = "success retrieve data"
-			c.JSON(result)
+			return c.Status(200).JSON(result)
 		} else {
 			result.Code = 500
 			result.Message = err.Error()
-			c.JSON(result)
+			return c.Status(500).JSON(result)
 		}
 	} else {
-		c.JSON(usecase.ResponseAll{Code: 400, Message: fmt.Sprintf("kode %s must be a string", modul)})
+		return c.Status(400).JSON(usecase.ResponseAll{Code: 400, Message: err.Error()})
 	}
-	return err
 }

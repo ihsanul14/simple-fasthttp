@@ -7,6 +7,7 @@ import (
 	repo "simple-fasthttp/entity/database/mysql/modul1"
 	"simple-fasthttp/framework/database"
 	fr "simple-fasthttp/framework/router"
+	fv "simple-fasthttp/framework/validator"
 	u "simple-fasthttp/usecase/modul1"
 
 	"github.com/gofiber/fiber/v2"
@@ -25,9 +26,11 @@ func Run() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	validator := fv.NewValidator()
 	repository := repo.NewRepository(mysqlConn)
 	usecase := u.NewUsecase(repository)
-	handler := modul1Handler.NewApplication(usecase)
+	handler := modul1Handler.NewApplication(usecase, validator)
 	router := fr.Router{
 		Modul1Handler: handler,
 	}
