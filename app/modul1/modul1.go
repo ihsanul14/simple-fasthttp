@@ -1,7 +1,9 @@
 package modul1
 
 import (
+	"simple-fasthttp/app/middleware"
 	fe "simple-fasthttp/framework/error"
+	"simple-fasthttp/framework/infra"
 	"simple-fasthttp/framework/logger"
 	"simple-fasthttp/framework/validator"
 	usecase "simple-fasthttp/usecase/modul1"
@@ -9,16 +11,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-const modul = "modul1"
-
 type Handler struct {
-	Usecase   usecase.IUsecase
 	Validator validator.IValidator
 	Logger    logger.ILogger
 }
 
 type IHandler interface {
-	Routes(*fiber.App)
 	GetDataHandler(*fiber.Ctx) error
 	CreateHandler(*fiber.Ctx) error
 	UpdateHandler(*fiber.Ctx) error
@@ -26,16 +24,19 @@ type IHandler interface {
 	ErrorHandler(*fiber.Ctx, *fe.Error) error
 }
 
-func NewApplication(u usecase.IUsecase, v validator.IValidator, logger logger.ILogger) IHandler {
-	v.AddRules(getRule, usecase.Request{})
-	v.AddRules(createRule, usecase.CreateRequest{})
-	v.AddRules(updateRule, usecase.UpdateRequest{})
-	v.AddRules(deleteRule, usecase.DeleteRequest{})
+func NewApplication(router *fiber.App, r *infra.Infra) {
+	r.Validator.AddRules(getRule, usecase.Request{})
+	r.Validator.AddRules(createRule, usecase.CreateRequest{})
+	r.Validator.AddRules(updateRule, usecase.UpdateRequest{})
+	r.Validator.AddRules(deleteRule, usecase.DeleteRequest{})
 
-	return &Handler{Usecase: u, Validator: v, Logger: logger}
-}
+	u := &Handler{
+		Validator: r.Validator,
+		Logger:    r.Logger,
+	}
 
-func (u *Handler) Routes(router *fiber.App) {
+	router.Use(middleware.UseCaseMiddleware(r))
+
 	router.Get("api/data", u.GetDataHandler)
 	router.Post("api/data/add", u.CreateHandler)
 	router.Put("api/data/update", u.UpdateHandler)
@@ -51,7 +52,8 @@ func (u *Handler) GetDataHandler(c *fiber.Ctx) error {
 
 	err := u.Validator.Check(param)
 	if err == nil {
-		result, err := u.Usecase.GetData(ctx, param)
+		IUsecase := c.Locals("IUsecase").(usecase.IUsecase)
+		result, err := IUsecase.GetData(ctx, param)
 		if err == nil {
 			result.Code = 200
 			result.Message = "success retrieve data"
@@ -72,7 +74,8 @@ func (u *Handler) CreateHandler(c *fiber.Ctx) error {
 	}
 	err := u.Validator.Check(param)
 	if err == nil {
-		err := u.Usecase.CreateData(ctx, param)
+		IUsecase := c.Locals("IUsecase").(usecase.IUsecase)
+		err := IUsecase.CreateData(ctx, param)
 		if err == nil {
 			return c.Status(200).JSON(usecase.ResponseAll{
 				Code:    200,
@@ -94,7 +97,8 @@ func (u *Handler) UpdateHandler(c *fiber.Ctx) error {
 	}
 	err := u.Validator.Check(param)
 	if err == nil {
-		err := u.Usecase.UpdateData(ctx, param)
+		IUsecase := c.Locals("IUsecase").(usecase.IUsecase)
+		err := IUsecase.UpdateData(ctx, param)
 		if err == nil {
 			return c.Status(200).JSON(
 				usecase.ResponseAll{
@@ -118,7 +122,8 @@ func (u *Handler) DeleteHandler(c *fiber.Ctx) error {
 	}
 	err := u.Validator.Check(param)
 	if err == nil {
-		err := u.Usecase.DeleteData(ctx, param)
+		IUsecase := c.Locals("IUsecase").(usecase.IUsecase)
+		err := IUsecase.DeleteData(ctx, param)
 		if err == nil {
 			return c.Status(200).JSON(usecase.ResponseAll{
 				Code:    200,

@@ -8,12 +8,16 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-func ConnectMySQL() (*gorm.DB, error) {
+type Database struct {
+	MySQL *gorm.DB
+}
+
+func ConnectMySQL() (*Database, error) {
 	msqlInfo := os.Getenv("MYSQL_DIALECTOR")
 	Db, err := gorm.Open(mysql.Open(msqlInfo), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 	if err != nil {
 		return nil, err
 	}
 
-	return Db, err
+	return &Database{MySQL: Db}, err
 }

@@ -2,9 +2,12 @@ package modul1
 
 import (
 	repo "simple-fasthttp/entity/database/mysql"
+	repository "simple-fasthttp/entity/database/mysql/modul1"
 	model "simple-fasthttp/entity/model"
 	fe "simple-fasthttp/framework/error"
+	"simple-fasthttp/framework/infra"
 	"strconv"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/valyala/fasthttp"
@@ -55,8 +58,9 @@ type IUsecase interface {
 	DeleteData(*fasthttp.RequestCtx, *DeleteRequest) *fe.Error
 }
 
-func NewUsecase(u repo.Repository) IUsecase {
-	return &Usecase{Repo: u}
+func NewUsecase(i *infra.Infra) IUsecase {
+	repo := repository.NewRepository(i)
+	return &Usecase{Repo: repo}
 }
 func (u Usecase) GetData(ctx *fasthttp.RequestCtx, param *Request) (*ResponseAll, *fe.Error) {
 	var id int
@@ -84,10 +88,12 @@ func (u Usecase) GetData(ctx *fasthttp.RequestCtx, param *Request) (*ResponseAll
 }
 
 func (u *Usecase) CreateData(ctx *fasthttp.RequestCtx, param *CreateRequest) *fe.Error {
+	now := time.Now().Local().String()[:20]
 	req := &model.Request{
-		Id:    param.Id,
-		Nama:  param.Nama,
-		Nomor: param.Nomor,
+		Id:         param.Id,
+		Nama:       param.Nama,
+		Nomor:      param.Nomor,
+		Created_at: now,
 	}
 	err := u.Repo.CreateData(ctx, req)
 	if err != nil {
@@ -97,10 +103,12 @@ func (u *Usecase) CreateData(ctx *fasthttp.RequestCtx, param *CreateRequest) *fe
 }
 
 func (u *Usecase) UpdateData(ctx *fasthttp.RequestCtx, param *UpdateRequest) *fe.Error {
+	now := time.Now().Local().String()[:20]
 	req := &model.Request{
-		Id:    param.Id,
-		Nama:  param.Nama,
-		Nomor: param.Nomor,
+		Id:         param.Id,
+		Nama:       param.Nama,
+		Nomor:      param.Nomor,
+		Updated_at: now,
 	}
 	err := u.Repo.UpdateData(ctx, req)
 	if err != nil {

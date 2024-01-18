@@ -8,6 +8,10 @@ type Request struct {
 	Updated_at string `json:"updated_at" xml:"updated_at" form:"upadated_at"`
 }
 
+func (c Request) TableName() string {
+	return "testing"
+}
+
 type Response struct {
 	Id         int    `json:"id" gorm:"id"`
 	Nama       string `json:"nama" gorm:"nama"`

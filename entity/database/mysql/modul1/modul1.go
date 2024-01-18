@@ -1,26 +1,23 @@
 package repository
 
 import (
-	"fmt"
 	repository "simple-fasthttp/entity/database/mysql"
 	models "simple-fasthttp/entity/model"
 	fe "simple-fasthttp/framework/error"
+	"simple-fasthttp/framework/infra"
 
 	"github.com/valyala/fasthttp"
 	"gorm.io/gorm"
 )
 
+const table = "testing"
+
 type Repo struct {
 	Dbconn *gorm.DB
 }
 
-const createQuery = "INSERT INTO %s (nama, nomor, created_at) VALUES (?,?,NOW())"
-const updateQuery = "UPDATE %s SET nama = ?, nomor = ?, updated_at = NOW() WHERE id = ?"
-const deleteQuery = "DELETE FROM %s WHERE id = ?"
-const table = "testing"
-
-func NewRepository(dbconn *gorm.DB) repository.Repository {
-	return &Repo{dbconn}
+func NewRepository(i *infra.Infra) repository.Repository {
+	return &Repo{i.Database.MySQL}
 }
 func (r Repo) GetData(ctx *fasthttp.RequestCtx, param *models.Request) ([]*models.Response, *fe.Error) {
 	var res []*models.Response
@@ -29,7 +26,7 @@ func (r Repo) GetData(ctx *fasthttp.RequestCtx, param *models.Request) ([]*model
 	if param.Id != 0 {
 		query = query.Where("id = ?", param.Id)
 	}
-	err := query.Scan(&res).Error
+	err := query.Find(&res).Error
 	if err != nil {
 		return nil, fe.NewError(500, err)
 	}
@@ -37,7 +34,7 @@ func (r Repo) GetData(ctx *fasthttp.RequestCtx, param *models.Request) ([]*model
 }
 
 func (r Repo) CreateData(ctx *fasthttp.RequestCtx, param *models.Request) *fe.Error {
-	err := r.Dbconn.Exec(fmt.Sprintf(createQuery, table), param.Nama, param.Nomor).Error
+	err := r.Dbconn.Omit("updated_at").Create(&param).Error
 	if err != nil {
 		return fe.NewError(500, err)
 	}
@@ -45,8 +42,7 @@ func (r Repo) CreateData(ctx *fasthttp.RequestCtx, param *models.Request) *fe.Er
 }
 
 func (r Repo) UpdateData(ctx *fasthttp.RequestCtx, param *models.Request) *fe.Error {
-	query := r.Dbconn.Exec(fmt.Sprintf(updateQuery, table), param.Nama, param.Nomor, param.Id)
-	err := query.Error
+	err := r.Dbconn.Omit("created_at").Updates(&param).Error
 	if err != nil {
 		return fe.NewError(500, err)
 	}
@@ -54,7 +50,7 @@ func (r Repo) UpdateData(ctx *fasthttp.RequestCtx, param *models.Request) *fe.Er
 }
 
 func (r Repo) DeleteData(ctx *fasthttp.RequestCtx, param *models.Request) *fe.Error {
-	query := r.Dbconn.Exec(fmt.Sprintf(deleteQuery, table), param.Id)
+	query := r.Dbconn.Delete(&param)
 	err := query.Error
 	if err != nil {
 		return fe.NewError(500, err)

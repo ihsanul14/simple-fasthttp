@@ -1,17 +1,29 @@
 package router
 
 import (
-	modul1_usecase "simple-fasthttp/app/modul1"
+	modul1_handler "simple-fasthttp/app/modul1"
+
+	"simple-fasthttp/framework/infra"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
-type Router struct {
-	Modul1Handler modul1_usecase.IHandler
+type IRouter interface {
+	Routes() *fiber.App
+	Listen(string) error
 }
 
-func (r *Router) NewRouter() *fiber.App {
+type Router struct {
+	Infra  *infra.Infra
+	Router *fiber.App
+}
+
+func NewRouter(infra *infra.Infra) IRouter {
+	return &Router{Infra: infra}
+}
+
+func (fr *Router) Routes() *fiber.App {
 	router := fiber.New()
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     "*",
@@ -21,6 +33,10 @@ func (r *Router) NewRouter() *fiber.App {
 		AllowCredentials: true,
 	}))
 
-	r.Modul1Handler.Routes(router)
+	modul1_handler.NewApplication(router, fr.Infra)
 	return router
+}
+
+func (fr *Router) Listen(port string) error {
+	return fr.Routes().Listen(port)
 }
