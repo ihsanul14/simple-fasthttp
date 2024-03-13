@@ -62,6 +62,7 @@ func NewUsecase(i *infra.Infra) IUsecase {
 	repo := repository.NewRepository(i)
 	return &Usecase{Repo: repo}
 }
+
 func (u Usecase) GetData(ctx *fasthttp.RequestCtx, param *Request) (*ResponseAll, *fe.Error) {
 	var id int
 	if param.Id != "" {

@@ -1,10 +1,6 @@
 package modul1
 
 var (
-	getRule = map[string]string{
-		"Id": "min=0",
-	}
-
 	createRule = map[string]string{
 		"Nama":  "required",
 		"Nomor": "required",
